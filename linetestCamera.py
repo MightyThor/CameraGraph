@@ -1,6 +1,6 @@
 import kivy
 kivy.require('1.7.0')
- 
+
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.uix.camera import Camera
@@ -14,20 +14,15 @@ from kivy.properties import ObjectProperty, ListProperty
 from kivy.lang import Builder
 from kivy.uix.gridlayout import GridLayout
 #from kivy.uix.button import Button
- 
+
 import math
- 
+
 Builder.load_string('''
 #:kivy 1.7.0
- 
-<MainView>:
-    GraphView:
-        size: root.size
-        id: graph
-
 
 <GraphView>:
     newdot: graphdot
+    size: root.size
     canvas:
         PushMatrix
         Translate:
@@ -39,6 +34,7 @@ Builder.load_string('''
             width: 2
         PopMatrix
     GraphDot:
+        pos: root.center
         id: graphdot
 
 
@@ -60,9 +56,10 @@ Builder.load_string('''
 
 <GraphDot>:
     size: 20,20
+    pos: root.pos
     canvas:
         Color:
-            rgba: 1, 1, 1, 1
+            rgba: 2, 0, .5, 1
         Ellipse:
             size: self.size
             pos: self.center
@@ -71,14 +68,12 @@ Builder.load_string('''
     size: 20, 20
     canvas:
         Color:
-            rgba: 1, 2, 2, 2
+            rgba: 1, 1, .5, 1
         Ellipse:
             size: self.size
             pos: self.center
 ''')
 
-class MainView(Widget):
-    pass
 
 #TODO: The graphing dot for the first graphview isn't translating properly
 class GraphDot(Widget):
@@ -152,6 +147,10 @@ class CameraView(Camera):
 
     pass
 
+class BlankView(Widget):
+    pass
+
+
 class SimpleGraphApp(App):
     starting_point = [0, 0]
 
@@ -161,15 +160,16 @@ class SimpleGraphApp(App):
 
         cameraview = CameraView(resolution = (640, 480), play = True)
 
-        parent = MainView()
         graphview = GraphView()
-        graphview2 = GraphView_2()
+        #graphview2 = GraphView_2()
+        blankview = BlankView()
 
         layer.add_widget(graphview)
-        layer.add_widget(graphview2)
+        layer.add_widget(blankview)
+        #layer.add_widget(graphview2)
 
         Clock.schedule_interval(graphview.update, 1/5)
-        Clock.schedule_interval(graphview2.update, 1/5)
+        #Clock.schedule_interval(graphview2.update, 1/5)
 
         root.add_widget(cameraview)
         root.add_widget(layer)
