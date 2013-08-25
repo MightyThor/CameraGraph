@@ -40,10 +40,10 @@ Builder.load_string('''
         PopMatrix
     GraphDot:
         id: graphdot
- 
- 
+
+
 <GraphView_2>:
-    newdot: graphdot
+    newdot2: graphdot2
     canvas:
         PushMatrix
         Translate:
@@ -54,9 +54,9 @@ Builder.load_string('''
             points: self.points
             width: 2
         PopMatrix
-    GraphDot:
-        id: graphdot
- 
+    GraphDot_2:
+        id: graphdot2
+
 
 <GraphDot>:
     size: 20,20
@@ -66,22 +66,34 @@ Builder.load_string('''
         Ellipse:
             size: self.size
             pos: self.center
-''')
 
+<GraphDot_2>:
+    size: 20, 20
+    canvas:
+        Color:
+            rgba: 1, 2, 2, 2
+        Ellipse:
+            size: self.size
+            pos: self.center
+''')
 
 class MainView(Widget):
     pass
 
+#TODO: The graphing dot for the first graphview isn't translating properly
 class GraphDot(Widget):
+    pass
+
+class GraphDot_2(Widget):
     pass
 
 class GraphView(Widget):
     newdot = ObjectProperty()
     points = ListProperty([])
- 
+
     old_position = [0, 0]
     counter = 0.0
- 
+
     def update(self, dt):
         self.counter += 0.2
         new_point = [
@@ -89,57 +101,56 @@ class GraphView(Widget):
             50. * math.sin(self.counter) + self.height / 2.
             ]
         self.add_point(new_point)
- 
+
     def add_point(self, new_position):
         self.newdot.center_y = new_position[1]
         self.newdot.center_x = new_position[0]
- 
+
         self.old_position = new_position[:]
- 
-        print new_position
-        
+
+#        print new_position
+
+        self.points.extend(self.old_position + new_position)
+        if new_position[0] > self.width:
+            self.counter = 0.0
+            self.old_position = [0, 0]
+            #Once the canvas is cleared the line doesn't come back
+            #TODO: need to be able to redraw the line?
+            self.canvas.clear()
+
+class GraphView_2(Widget):
+    newdot2 = ObjectProperty()
+    points = ListProperty([])
+
+    old_position = [0, 0]
+    counter = 0.0
+
+    def update(self, dt):
+        self.counter += 0.2
+        new_point = [
+            self.counter * 5.,
+            50. * math.sin(self.counter) + self.height / 2.
+            ]
+        self.add_point(new_point)
+
+    def add_point(self, new_position):
+        self.newdot2.center_y = new_position[1]
+        self.newdot2.center_x = new_position[0]
+
+        self.old_position = new_position[:]
+
+#        print new_position
+
         self.points.extend(self.old_position + new_position)
         if new_position[0] > self.width:
             self.counter = 0.0
             self.old_position = [0, 0]
             #self.canvas.clear()
 
-class GraphView_2(Widget):
-    newdot = ObjectProperty()
-    points = ListProperty([])
- 
-    old_position = [0, 0]
-    counter = 0.0
- 
-    def update(self, dt):
-        self.counter += 0.2
-        new_point = [
-            self.counter * 5.,
-            50. * math.sin(self.counter) + self.height / 2.
-            ]
-        self.add_point(new_point)
- 
-    def add_point(self, new_position):
-        self.newdot.center_y = new_position[1]
-        self.newdot.center_x = new_position[0]
- 
-        self.old_position = new_position[:]
- 
-        print new_position
-        
-        self.points.extend(self.old_position + new_position)
-        if new_position[0] > self.width:
-            self.counter = 0.0
-            self.old_position = [0, 0]
-            #self.canvas.clear()
- 
 
 class CameraView(Camera):
 
-    def build(self):
-        texture = self.texture
-        if not texture:
-            return
+    pass
 
 class SimpleGraphApp(App):
     starting_point = [0, 0]
@@ -149,21 +160,21 @@ class SimpleGraphApp(App):
         layer = GridLayout(rows = 2)
 
         cameraview = CameraView(resolution = (640, 480), play = True)
-        
+
         parent = MainView()
         graphview = GraphView()
         graphview2 = GraphView_2()
 
         layer.add_widget(graphview)
         layer.add_widget(graphview2)
-        
+
         Clock.schedule_interval(graphview.update, 1/5)
         Clock.schedule_interval(graphview2.update, 1/5)
 
         root.add_widget(cameraview)
         root.add_widget(layer)
- 
+
         return root
- 
+
 if __name__ == '__main__':
     SimpleGraphApp().run()
